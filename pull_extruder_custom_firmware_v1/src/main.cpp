@@ -2,23 +2,23 @@
 #include <extruder_control.h>
 #include <ArduinoJson.h>
 #include <ota.h>
-const int TEMPERATURE_ERROR_THRESHOLD = 5;
-const unsigned long STABILITY_TIME = 5000; // 5 seconds
+const int TEMPERATURE_ERROR_THRESHOLD = 15;
+const unsigned long STABILITY_TIME = 10000; // 5 seconds
 
 volatile unsigned long stepDelay = 2000;  // Initial delay in µs (adjustable)
 volatile bool extruder_1_motor_stepState = false;
 volatile bool extruder_2_motor_stepState = false;
 volatile bool extruder_3_motor_stepState = false;
 volatile long stepCount = 0;
-volatile float currentSpeed = 2000; // Set to max speed for continuous motion
+volatile float currentSpeed = 1000; // Set to max speed for continuous motion
 volatile float maxSpeed = 300; // Max steps per second
 volatile float acceleration = 1000; // Steps per second²
-int steps_per_millimeter = 200; // Steps per millimeter
+int steps_per_millimeter = 800; // Steps per millimeter
 int upload_counter=0;
 Extruder EXTRUDER_1(EXTRUDER_1_HEATER, EXTRUDER_1_THERMISTOR, 1, 38.50, 4.08, 40.70);
 Extruder EXTRUDER_2(EXTRUDER_2_HEATER, EXTRUDER_2_THERMISTOR, 2, 38.50, 4.08, 40.70);
 Extruder EXTRUDER_3(EXTRUDER_3_HEATER, EXTRUDER_3_THERMISTOR, 3, 38.50, 4.08, 40.70);
-double setpoint_temperature = 230.00;
+double setpoint_temperature = 225.00;
 int revs = 2;
 // SpeedyStepper EXTRUDER_1_MOTOR;
 // SpeedyStepper EXTRUDER_2_MOTOR;
@@ -121,7 +121,8 @@ void setup() {
     sei();
 
     setMotorSpeed(currentSpeed);
-    startGsm(-1);
+    //startGsm(-1);
+    //checkForUpdate("2868510");
 
 }
 ISR(TIMER1_COMPA_vect) {
@@ -166,7 +167,7 @@ ISR(TIMER4_COMPA_vect) {
         digitalWrite(EXTRUDER_1_MOTOR_DRIVER_STEP, extruder_1_motor_stepState); // Set step pin to stepState
         extruder_1_motor_stepState = !extruder_1_motor_stepState; // Toggle step state
         if (extruder_1_motor_stepState) {
-            extruder_1_motor_steps++; // Increment step count
+            //extruder_1_motor_steps++; // Increment step count
         }
     }
 
@@ -176,7 +177,7 @@ ISR(TIMER4_COMPA_vect) {
         digitalWrite(EXTRUDER_2_MOTOR_DRIVER_STEP, extruder_2_motor_stepState); // Set step pin to stepState
         extruder_2_motor_stepState = !extruder_2_motor_stepState; // Toggle step state
         if (extruder_2_motor_stepState) {
-            extruder_2_motor_steps++; // Increment step count
+            //extruder_2_motor_steps++; // Increment step count
         }
     }
 
@@ -186,7 +187,7 @@ ISR(TIMER4_COMPA_vect) {
         digitalWrite(EXTRUDER_3_MOTOR_DRIVER_STEP, extruder_3_motor_stepState); // Set step pin to stepState
         extruder_3_motor_stepState = !extruder_3_motor_stepState; // Toggle step state
         if (extruder_3_motor_stepState) {
-            extruder_3_motor_steps++; // Increment step count
+            //extruder_3_motor_steps++; // Increment step count
         }
     }
 }
@@ -222,7 +223,8 @@ void loop() {
         double temp3 = EXTRUDER_3.readTemperature();
 
         // Create JSON formatted string using ArduinoJson
-        StaticJsonDocument<1024> doc;
+        DynamicJsonDocument doc(1024);
+       // StaticJsonDocument<1024> doc;
         JsonObject extruder1 = doc.createNestedObject("Extruder1");
         extruder1["Temperature"] = temp1;
         extruder1["isEnabled"] = extruder_1_enable;
@@ -272,15 +274,16 @@ void loop() {
         dataToPublish[17] = extruder3["extruded filament length"];
         // Print JSON formatted string
         Serial.println(jsonOutput);
-        upload_counter++;
+        doc.clear();
+        //upload_counter++;
         lastPrintTime = currentTime;
 
     }
     if(upload_counter>=30)
     {
         //checkForUpdate("2868510");
-        mqttUpdate("2868510",dataToPublish);
-        upload_counter=0;
+        //mqttUpdate("2868510",dataToPublish);
+        //upload_counter=0;
     }
 
     // Check stability for each extruder
