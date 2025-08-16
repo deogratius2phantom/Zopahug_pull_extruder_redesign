@@ -93,3 +93,17 @@ bool Extruder::readFilamentSensor() {
 void Extruder::disableHeater() {
     analogWrite(extruderHotEndPin, 0);
 }
+void Extruder::checkStability(double currentTemperature, unsigned long& stableStartTime, bool& isStable) {
+    if (abs(currentTemperature - setpoint) < 10.0) {
+        if (stableStartTime == 0) {
+            stableStartTime = millis();
+            //isStable=true; // Assume stable if within 10 degrees
+        } else if (millis() - stableStartTime >= 10000) { // 10 seconds
+            isStable = true;
+        }
+    } else {
+        stableStartTime = 0;
+        isStable = false;
+    }
+
+}

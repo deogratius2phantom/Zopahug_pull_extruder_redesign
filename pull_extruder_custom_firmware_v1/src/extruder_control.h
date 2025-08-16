@@ -19,6 +19,7 @@ public:
     bool readFilamentSensor();
     void setFilamentSensorPin(int pin);
     void disableHeater();
+    void checkStability( double currentTemperature, unsigned long& stableStartTime, bool& isStable);
     PID myPID;
     // Function prototypes
 private:

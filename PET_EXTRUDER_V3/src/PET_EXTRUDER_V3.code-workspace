@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "pull_extruder_custom_firmware_v1",
+			"path": "../../Zopahug_pull_extruder_redesign/pull_extruder_custom_firmware_v1"
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.tpp": "cpp"
+		}
+	}
+}
